@@ -5,37 +5,42 @@ import { useSnapshot } from "valtio";
 import state from "../store";
 
 import { downloadCanvasToImage, reader } from "../config/helpers";
-import {
-  EditorTabs,
-  FilterTabs,
-  DecalTypes,
-  DownloadTab,
-} from "../config/constants";
+import { EditorTabs, FilterTabs, DecalTypes, DownloadTab } from "../config/constants";
 
 import { slideAnimation } from "../config/motion";
 
-import {
-  Tab,
-  AIPicker,
-  ColorPicker,
-  FilePicker,
-  CustomButton,
-} from "../components";
-import config from "../config/config";
+import { Tab, ColorPicker, FilePicker, CustomButton } from "../components";
+interface StateType {
+  intro: boolean;
+  color: string;
+  isLogoTexture: boolean;
+  isFullTexture: boolean;
+  isBackLogo: boolean;
+  isRightShoulderLogo: boolean;
+  isLeftShoulderLogo: boolean;
+  logoDecal: string;
+  fullDecal: string;
+  mode: string;
+}
+type FilterTabNames = "logoShirt" | "stylishShirt" | "leftShoulder" | "rightShoulder" | "back";
 
+type BooleanStateKeys = {
+  [K in keyof StateType]: StateType[K] extends boolean ? K : never;
+}[keyof StateType];
+
+type StringStateKeys = {
+  [K in keyof StateType]: StateType[K] extends string ? K : never;
+}[keyof StateType];
 const Customizer = () => {
   const snap = useSnapshot(state);
-
   const [file, setFile] = useState<File>();
-
-  const [prompt, setPrompt] = useState("");
-
-  const [generatingImg, setGeneratingImg] = useState(false);
-
   const [activeEditorTab, setActiveEditorTab] = useState("");
   const [activeFilterTab, setActiveFilterTab] = useState({
     logoShirt: true,
     stylishShirt: false,
+    leftShoulder: false, // New left shoulder tab
+    rightShoulder: false, // New right shoulder tab
+    back: false, // New back tab
   });
 
   // Show tab content depending on the showing tab
@@ -45,64 +50,47 @@ const Customizer = () => {
         return <ColorPicker />;
       case "filepicker":
         return <FilePicker file={file} setFile={setFile} readFile={readFile} />;
-      case "aipicker":
-        return (
-          <AIPicker
-            prompt={prompt}
-            setPrompt={setPrompt}
-            generatingImg={generatingImg}
-            handleSubmit={handleSubmit}
-          />
-        );
       default:
         return null;
     }
   };
 
-  const handleSubmit = async (type: "logo" | "full") => {
-    if (!prompt) return alert("Please enter a prompt");
-
-    try {
-      setGeneratingImg(true);
-
-      const response = await fetch(
-        snap.mode === "prod"
-          ? config.production.backendUrl
-          : config.development.backendUrl,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            prompt,
-          }),
-        }
-      );
-
-      const data = await response.json();
-      if (data.photo) {
-        handleDecals(type, `data:image/png;base64,${data.photo}`);
-      } else {
-        alert("could not load photo");
-      }
-    } catch (error) {
-      alert(error);
-    } finally {
-      setGeneratingImg(false);
-      setActiveEditorTab("");
-    }
-  };
-
+  // Modify decalType to use stricter types
   const handleDecals = (
-    type: "logo" | "full",
+    type: "logo" | "full" | "leftShoulder" | "rightShoulder" | "back",
     result: string | ArrayBuffer | null
   ) => {
-    const decalType = DecalTypes[type];
+    let decalType: {
+      stateProperty: BooleanStateKeys; // Only allow boolean state properties
+      filterTab: FilterTabNames;
+      imageProperty: StringStateKeys; // Only allow string state properties for image URL
+    };
+
+    switch (type) {
+      case "logo":
+        decalType = { stateProperty: "isLogoTexture", filterTab: "logoShirt", imageProperty: "logoDecal" };
+        break;
+      case "full":
+        decalType = { stateProperty: "isFullTexture", filterTab: "stylishShirt", imageProperty: "fullDecal" };
+        break;
+      case "leftShoulder":
+        decalType = { stateProperty: "isLeftShoulderLogo", filterTab: "leftShoulder", imageProperty: "logoDecal" };
+        break;
+      case "rightShoulder":
+        decalType = { stateProperty: "isRightShoulderLogo", filterTab: "rightShoulder", imageProperty: "logoDecal" };
+        break;
+      case "back":
+        decalType = { stateProperty: "isBackLogo", filterTab: "back", imageProperty: "logoDecal" };
+        break;
+      default:
+        return;
+    }
 
     if (typeof result === "string") {
-      state[decalType.stateProperty] = result;
+      // Apply the decal image to the relevant image property (string)
+      state[decalType.imageProperty] = result;
 
+      // Activate the corresponding filter tab and boolean flag (boolean)
       if (!activeFilterTab[decalType.filterTab]) {
         handleActiveFilterTab(decalType.filterTab);
       }
@@ -128,9 +116,7 @@ const Customizer = () => {
     setActiveFilterTab((prevState) => {
       return {
         ...prevState,
-        [tabName]: !prevState[
-          tabName as "logoShirt" | "stylishShirt"
-        ] as boolean,
+        [tabName]: !prevState[tabName as "logoShirt" | "stylishShirt"] as boolean,
       };
     });
   };
@@ -147,11 +133,7 @@ const Customizer = () => {
     <AnimatePresence>
       {!snap.intro && (
         <>
-          <motion.div
-            key="custom"
-            className="absolute top-0 left-0 z-10"
-            {...slideAnimation("left")}
-          >
+          <motion.div key="custom" className="absolute top-0 left-0 z-10" {...slideAnimation("left")}>
             <div className="flex items-center min-h-screen">
               <div className="editortabs-container tabs">
                 {EditorTabs.map((tab) => (
@@ -170,32 +152,23 @@ const Customizer = () => {
           </motion.div>
 
           <motion.div
-            className="filtertabs-container"
+            className="absolute z-10 bottom-5 right-0 left-0 flex justify-center items-center flex-wrap gap-4 bg-white shadow-md w-auto max-w-full sm:overflow-x-auto"
             {...slideAnimation("up")}
           >
             {FilterTabs.map((tab) => (
               <Tab
                 key={tab.name}
                 tab={tab}
+                ButtonName={tab.ButtonName}
                 isFilterTab
-                isActiveTab={
-                  activeFilterTab[tab.name as "logoShirt" | "stylishShirt"]
-                }
+                isActiveTab={activeFilterTab[tab.name as "logoShirt" | "stylishShirt"]}
                 handleClick={() => handleActiveFilterTab(tab.name)}
               />
             ))}
-            <Tab
-              key={DownloadTab.name}
-              tab={DownloadTab}
-              isDownloadTab
-              handleClick={() => downloadCanvasToImage()}
-            />
+            <Tab key={DownloadTab.name} tab={DownloadTab} isDownloadTab handleClick={() => downloadCanvasToImage()} />
           </motion.div>
 
-          <motion.div
-            className="absolute top-5 right-5 z-10"
-            {...slideAnimation("right")}
-          >
+          <motion.div className="absolute top-5 right-5 z-10" {...slideAnimation("right")}>
             <CustomButton
               type="filled"
               title="Back"

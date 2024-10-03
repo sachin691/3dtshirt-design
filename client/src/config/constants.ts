@@ -1,9 +1,20 @@
 import { swatch, fileIcon, ai, logoShirt, stylishShirt, download } from "../assets";
 
 export interface TabType {
-  name: "colorpicker" | "filepicker" | "aipicker" | "stylishShirt" | "logoShirt" | "download";
-  icon: string
+  name:
+    | "colorpicker"
+    | "filepicker"
+    | "aipicker"
+    | "stylishShirt"
+    | "logoShirt"
+    | "download"
+    | "leftShoulder" // New left shoulder tab
+    | "rightShoulder" // New right shoulder tab
+    | "back"; // New back tab
+  icon?: string; // Icon as a string, assuming the path or identifier for the icon
+  ButtonName?: string;
 }
+
 
 export const EditorTabs : TabType[] = [
   {
@@ -20,14 +31,26 @@ export const EditorTabs : TabType[] = [
   },
 ];
 
-export const FilterTabs : TabType[] = [
+export const FilterTabs: TabType[] = [
   {
     name: "logoShirt",
-    icon: logoShirt,
+    ButtonName: logoShirt,
   },
   {
     name: "stylishShirt",
-    icon: stylishShirt,
+    ButtonName: stylishShirt,
+  },
+  {
+    name: "leftShoulder",
+    ButtonName: "path/to/leftShoulderIcon", // Replace with actual icon import
+  },
+  {
+    name: "rightShoulder",
+    ButtonName: "path/to/rightShoulderIcon", // Replace with actual icon import
+  },
+  {
+    name: "back",
+    ButtonName: "path/to/backIcon", // Replace with actual icon import
   },
 ];
 
@@ -38,20 +61,24 @@ export const DownloadTab : TabType = {
 
 export const DecalTypes = {
   logo: {
-    stateProperty: "logoDecal",
-    filterTab: "logoShirt",
+    stateProperty: "logoDecal" as const, // Ensure it's a literal type
+    filterTab: "logoShirt" as const,
   },
   full: {
-    stateProperty: "fullDecal",
-    filterTab: "stylishShirt",
+    stateProperty: "fullDecal" as const,
+    filterTab: "stylishShirt" as const,
   },
-} as {
-  logo: {
-      stateProperty: "logoDecal" | "fullDecal";
-      filterTab: "logoShirt" | "stylishShirt";
-  };
-  full: {
-      stateProperty: "logoDecal" | "fullDecal";
-      filterTab: "logoShirt" | "stylishShirt";
-  };
-};
+  leftShoulder: {
+    stateProperty: "isLeftShoulderLogo" as const,
+    filterTab: "leftShoulder" as const,
+  },
+  rightShoulder: {
+    stateProperty: "isRightShoulderLogo" as const,
+    filterTab: "rightShoulder" as const,
+  },
+  back: {
+    stateProperty: "isBackLogo" as const,
+    filterTab: "back" as const,
+  },
+} as const; // This ensures that the entire object is treated as literal types
+

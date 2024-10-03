@@ -8,6 +8,7 @@ interface TabProps {
   isFilterTab?: boolean;
   isActiveTab?: boolean;
   isDownloadTab?: boolean;
+  ButtonName?: string;
   handleClick: () => void;
 }
 
