@@ -55,15 +55,14 @@ const Customizer = () => {
     }
   };
 
-  // Modify decalType to use stricter types
   const handleDecals = (
     type: "logo" | "full" | "leftShoulder" | "rightShoulder" | "back",
     result: string | ArrayBuffer | null
   ) => {
     let decalType: {
-      stateProperty: BooleanStateKeys; // Only allow boolean state properties
+      stateProperty: BooleanStateKeys;
       filterTab: FilterTabNames;
-      imageProperty: StringStateKeys; // Only allow string state properties for image URL
+      imageProperty: StringStateKeys;
     };
 
     switch (type) {
@@ -87,10 +86,8 @@ const Customizer = () => {
     }
 
     if (typeof result === "string") {
-      // Apply the decal image to the relevant image property (string)
       state[decalType.imageProperty] = result;
 
-      // Activate the corresponding filter tab and boolean flag (boolean)
       if (!activeFilterTab[decalType.filterTab]) {
         handleActiveFilterTab(decalType.filterTab);
       }
@@ -105,20 +102,28 @@ const Customizer = () => {
       case "stylishShirt":
         state.isFullTexture = !activeFilterTab[tabName];
         break;
+      case "leftShoulder":
+        state.isLeftShoulderLogo = !activeFilterTab[tabName];
+        break;
+
+      case "rightShoulder":
+        state.isRightShoulderLogo = !activeFilterTab[tabName];
+        break;
+
+      case "back":
+        console.log(activeFilterTab[tabName]);
+        state.isBackLogo = !activeFilterTab[tabName];
+        break;
       default:
         state.isLogoTexture = true;
         state.isFullTexture = false;
         break;
     }
 
-    // after setting the state, activeFilterTab is updated
-
-    setActiveFilterTab((prevState) => {
-      return {
-        ...prevState,
-        [tabName]: !prevState[tabName as "logoShirt" | "stylishShirt"] as boolean,
-      };
-    });
+    setActiveFilterTab((prevState) => ({
+      ...prevState,
+      [tabName]: !prevState[tabName as "logoShirt" | "stylishShirt"],
+    }));
   };
 
   const readFile = (type: "logo" | "full") => {
@@ -133,26 +138,27 @@ const Customizer = () => {
     <AnimatePresence>
       {!snap.intro && (
         <>
-          <motion.div key="custom" className="absolute top-0 left-0 z-10" {...slideAnimation("left")}>
-            <div className="flex items-center min-h-screen">
-              <div className="editortabs-container tabs">
-                {EditorTabs.map((tab) => (
-                  <Tab
-                    key={tab.name}
-                    tab={tab}
-                    handleClick={() => {
-                      setActiveEditorTab(tab.name);
-                    }}
-                  />
-                ))}
-
-                {generateTabContent()}
-              </div>
+          {/* Editor Tabs on top left */}
+          <motion.div
+            key="custom"
+            className="absolute top-0 left-0 z-10 p-2 flex flex-row items-center space-x-4 sm:space-x-6"
+            {...slideAnimation("left")}
+          >
+            <div className="flex flex-row space-x-4">
+              {EditorTabs.map((tab) => (
+                <Tab
+                  key={tab.name}
+                  tab={tab}
+                  handleClick={() => {
+                    setActiveEditorTab(tab.name);
+                  }}
+                />
+              ))}
             </div>
           </motion.div>
 
           <motion.div
-            className="absolute z-10 bottom-5 right-0 left-0 flex justify-center items-center flex-wrap gap-4 bg-white shadow-md w-auto max-w-full sm:overflow-x-auto"
+            className="absolute z-10 bottom-5 px-4 py-2 rounded-2xl left-0 right-0 flex justify-center items-center gap-4 bg-white shadow-md w-[20rem] sm:w-auto md:max-w-max mx-auto overflow-x-auto shadow-md"
             {...slideAnimation("up")}
           >
             {FilterTabs.map((tab) => (
@@ -161,7 +167,9 @@ const Customizer = () => {
                 tab={tab}
                 ButtonName={tab.ButtonName}
                 isFilterTab
-                isActiveTab={activeFilterTab[tab.name as "logoShirt" | "stylishShirt"]}
+                isActiveTab={
+                  activeFilterTab[tab.name as "logoShirt" | "stylishShirt" | "leftShoulder" | "rightShoulder" | "back"]
+                }
                 handleClick={() => handleActiveFilterTab(tab.name)}
               />
             ))}

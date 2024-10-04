@@ -37,30 +37,6 @@ const Shirt = () => {
     yMax: 0.2,
   };
 
-  // Function to handle dragging the logo
-  const handlePointerDown = (event: ThreeEvent<PointerEvent>) => {
-    const initialX = event.point.x;
-    const initialY = event.point.y;
-
-    const handlePointerMove = (moveEvent: ThreeEvent<PointerEvent>) => {
-      const newX = moveEvent.point.x;
-      const newY = moveEvent.point.y;
-
-      // Calculate new position ensuring it stays within the fixed area
-      const xPosition = Math.max(fixedArea.xMin, Math.min(fixedArea.xMax, logoPosition[0] + (newX - initialX)));
-      const yPosition = Math.max(fixedArea.yMin, Math.min(fixedArea.yMax, logoPosition[1] + (newY - initialY)));
-
-      setLogoPosition([xPosition, yPosition, logoPosition[2]]);
-    };
-
-    const handlePointerUp = () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerUp);
-    };
-
-    window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerup", handlePointerUp);
-  };
 
   // Function to handle resizing the logo
   const handleWheel = (event: WheelEvent) => {
@@ -79,7 +55,14 @@ const Shirt = () => {
 
   return (
     <group>
-      <mesh castShadow geometry={nodes.T_Shirt_male.geometry} material={material} material-roughness={1} dispose={null}>
+      <mesh
+        castShadow
+        geometry={nodes.T_Shirt_male.geometry}
+        material={material}
+        material-roughness={1}
+        dispose={null}
+        scale={0.7}
+      >
         {snap.isFullTexture && (
           <Decal
             position={[0, 0, 0]} // Centered on the shirt
@@ -94,40 +77,40 @@ const Shirt = () => {
           <Decal
             position={logoPosition} // Use state for logo position
             rotation={[0, 0, 0]} // No rotation for simplicity
-            scale={[logoScale, logoScale, 1]} // Use state for logo scaling
+            scale={0.15} // Use state for logo scaling
             map={logoTexture}
-            onPointerDown={handlePointerDown} // Enable dragging
             polygonOffsetFactor={-1}
           />
         )}
 
-        {/* Other logos on the shirt */}
-        {snap.isLogoTexture && (
-          <>
-            {snap.isLeftShoulderLogo && (
-              <Decal
-                position={isMobile ? [-0.27, 0.11, -0.02] : [-0.28, 0.1, -0.02]}
-                rotation={[0, 0, Math.PI / 2]}
-                scale={[shoulderLogoScale, shoulderLogoScale, 1]} // Use state for shoulder logo scaling
-                map={logoTexture}
-                polygonOffsetFactor={-1}
-              />
-            )}
+        {snap.isLeftShoulderLogo && (
+          <Decal
+            position={isMobile ? [-0.27, 0.11, -0.02] : [-0.28, 0.1, -0.02]} // Final left shoulder position
+            rotation={[0, 0, Math.PI / 2]} // Adjust rotation to align with shoulder
+            scale={isMobile ? 0.05 : 0.07} // Adjust scale as necessary
+            map={logoTexture} // Logo texture
+            polygonOffsetFactor={-1}
+          />
+        )}
 
-            {snap.isRightShoulderLogo && (
-              <Decal
-                position={isMobile ? [0.27, 0.1, -0.03] : [0.28, 0.1, -0.02]}
-                rotation={[0, 0, Math.PI / 2]}
-                scale={[shoulderLogoScale, shoulderLogoScale, 1]} // Use state for shoulder logo scaling
-                map={logoTexture}
-                polygonOffsetFactor={-1}
-              />
-            )}
+        {snap.isRightShoulderLogo && (
+          <Decal
+            position={isMobile ? [0.27, 0.1, -0.03] : [0.27, 0.1, -0.03]} // Final right shoulder position
+            rotation={[0, 0, -Math.PI / 2]} // Adjust rotation to align with shoulder
+            scale={isMobile ? 0.05 : 0.07} // Adjust scale as necessary
+            map={logoTexture} // Logo texture
+            polygonOffsetFactor={-1}
+          />
+        )}
 
-            {snap.isBackLogo && (
-              <Decal position={[0, 0.06, -0.1]} rotation={[0, Math.PI, 0]} scale={0.15} map={logoTexture} />
-            )}
-          </>
+        {snap.isBackLogo && (
+          <Decal
+            position={[0, 0.06, -0.1]}
+            rotation={[0, Math.PI, 0]}
+            scale={0.15}
+            map={logoTexture}
+            polygonOffsetFactor={-1}
+          />
         )}
       </mesh>
     </group>

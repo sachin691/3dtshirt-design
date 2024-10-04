@@ -17,7 +17,6 @@ const CanvasModel = () => {
       <Environment preset="city" />
 
       <CameraRig>
-        <Backdrop />
         <Center>
           <Shirt />
         </Center>

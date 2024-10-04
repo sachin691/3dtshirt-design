@@ -22,7 +22,6 @@ const CameraRig = ({ children }: Props) => {
   const [isRotating, setIsRotating] = useState(false); // State to track if rotation is active
   const [lastRotationY, setLastRotationY] = useState(0); // Track last rotation position
   const isTouching = useRef(false);
-  const movementThreshold = 10; // Threshold to determine if it's a drag
   const startPosition = useRef(0); // Store initial position when starting rotation
 
   // Function to handle mouse movement

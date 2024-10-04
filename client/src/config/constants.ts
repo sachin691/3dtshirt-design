@@ -34,23 +34,23 @@ export const EditorTabs : TabType[] = [
 export const FilterTabs: TabType[] = [
   {
     name: "logoShirt",
-    ButtonName: logoShirt,
+    ButtonName: "Chest",
   },
   {
     name: "stylishShirt",
-    ButtonName: stylishShirt,
+    ButtonName: "Full",
   },
   {
     name: "leftShoulder",
-    ButtonName: "path/to/leftShoulderIcon", // Replace with actual icon import
+    ButtonName: "Left", // Replace with actual icon import
   },
   {
     name: "rightShoulder",
-    ButtonName: "path/to/rightShoulderIcon", // Replace with actual icon import
+    ButtonName: "Right", // Replace with actual icon import
   },
   {
     name: "back",
-    ButtonName: "path/to/backIcon", // Replace with actual icon import
+    ButtonName: "Back", // Replace with actual icon import
   },
 ];
 

@@ -2,6 +2,7 @@ import { TabType } from "../config/constants";
 import { useSnapshot } from "valtio";
 
 import state from "../store";
+import CustomButton from "./CustomButton";
 
 interface TabProps {
   tab: TabType;
@@ -18,6 +19,7 @@ const Tab = ({
   isFilterTab,
   isActiveTab,
   isDownloadTab,
+  ButtonName
 }: TabProps) => {
   const snap = useSnapshot(state);
 
@@ -27,28 +29,26 @@ const Tab = ({
       : { backgroundColor: "transparent", opacity: 1 };
 
   return (
-    <div
-      key={tab.name}
-      className={`tab-btn ${
-        isFilterTab || isDownloadTab
-          ? "rounded-full glassmorphism"
-          : "rounded-4"
-      }`}
-      onClick={handleClick}
-      style={
-        !isDownloadTab
-          ? activeStyles
-          : { backgroundColor: "transparent", opacity: 1 }
-      }
-    >
-      <img
-        src={tab.icon}
-        alt={tab.name}
-        className={`${
-          isFilterTab || isDownloadTab ? "w-2/3 h-2/3" : "w-11/12 h-11/12"
-        } ${"object-contain"}`}
-      />
-    </div>
+    <>
+      {ButtonName ? (
+        <div onClick={handleClick}>
+          <CustomButton type="filled" title={ButtonName} customStyles="w-fit px-4 py-2.5 font-bold text-sm" />
+        </div>
+      ) : (
+        <div
+          key={tab.name}
+          className={`tab-btn ${isFilterTab || isDownloadTab ? "rounded-full glassmorphism" : "rounded-4"}`}
+          onClick={handleClick}
+          style={!isDownloadTab ? activeStyles : { backgroundColor: "transparent", opacity: 1 }}
+        >
+          <img
+            src={tab.icon}
+            alt={tab.name}
+            className={`${isFilterTab || isDownloadTab ? "w-2/3 h-2/3" : "w-11/12 h-11/12"} ${"object-contain"}`}
+          />
+        </div>
+      )}
+    </>
   );
 };
 
