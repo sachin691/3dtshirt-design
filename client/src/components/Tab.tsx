@@ -1,6 +1,6 @@
-import { TabType } from "../config/constants";
+import React, { useState } from "react";
 import { useSnapshot } from "valtio";
-
+import { TabType } from "../config/constants";
 import state from "../store";
 import CustomButton from "./CustomButton";
 
@@ -13,32 +13,37 @@ interface TabProps {
   handleClick: () => void;
 }
 
-const Tab = ({
-  tab,
-  handleClick,
-  isFilterTab,
-  isActiveTab,
-  isDownloadTab,
-  ButtonName
-}: TabProps) => {
+const Tab = ({ tab, handleClick, isFilterTab, isActiveTab, isDownloadTab, ButtonName }: TabProps) => {
   const snap = useSnapshot(state);
+  const [file, setFile] = useState<File | undefined>(undefined);
+  const [isFilePickerVisible, setFilePickerVisible] = useState(false); // State for visibility of FilePicker
 
   const activeStyles =
     isFilterTab && isActiveTab
       ? { backgroundColor: snap.color, opacity: 0.5 }
       : { backgroundColor: "transparent", opacity: 1 };
 
+  const toggleFilePicker = () => {
+     handleClick() 
+    setFilePickerVisible(true); // Open FilePicker
+  };
+
+  const closeFilePicker = () => {
+    setFilePickerVisible(false); // Close FilePicker
+    setFile(undefined); // Optionally reset file selection
+  };
+
   return (
-    <>
+    <div>
       {ButtonName ? (
-        <div onClick={handleClick}>
+        <div onClick={toggleFilePicker}>
           <CustomButton type="filled" title={ButtonName} customStyles="w-fit px-4 py-2.5 font-bold text-sm" />
         </div>
       ) : (
         <div
           key={tab.name}
           className={`tab-btn ${isFilterTab || isDownloadTab ? "rounded-full glassmorphism" : "rounded-4"}`}
-          onClick={handleClick}
+          onClick={toggleFilePicker} // Open FilePicker on click
           style={!isDownloadTab ? activeStyles : { backgroundColor: "transparent", opacity: 1 }}
         >
           <img
@@ -48,7 +53,17 @@ const Tab = ({
           />
         </div>
       )}
-    </>
+
+      {/* Render FilePicker if visible */}
+      {/* {isFilePickerVisible && (
+        <FilePicker
+          file={file}
+          setFile={setFile}
+          readFile={(type) => console.log(`Reading file of type: ${type}`)} // Example readFile function
+          onClose={closeFilePicker} // Pass close handler
+        />
+      )} */}
+    </div>
   );
 };
 

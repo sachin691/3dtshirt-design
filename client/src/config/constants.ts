@@ -10,7 +10,8 @@ export interface TabType {
     | "download"
     | "leftShoulder" // New left shoulder tab
     | "rightShoulder" // New right shoulder tab
-    | "back"; // New back tab
+    | "back" // New back tab
+    | "preview"
   icon?: string; // Icon as a string, assuming the path or identifier for the icon
   ButtonName?: string;
 }
@@ -25,10 +26,6 @@ export const EditorTabs : TabType[] = [
     name: "filepicker",
     icon: fileIcon,
   },
-  {
-    name: "aipicker",
-    icon: ai,
-  },
 ];
 
 export const FilterTabs: TabType[] = [
@@ -40,18 +37,18 @@ export const FilterTabs: TabType[] = [
     name: "stylishShirt",
     ButtonName: "Full",
   },
-  {
-    name: "leftShoulder",
-    ButtonName: "Left", // Replace with actual icon import
-  },
-  {
-    name: "rightShoulder",
-    ButtonName: "Right", // Replace with actual icon import
-  },
+  // {
+  //   name: "leftShoulder",
+  //   ButtonName: "Left", // Replace with actual icon import
+  // },
+  // {
+  //   name: "rightShoulder",
+  //   ButtonName: "Right", // Replace with actual icon import
+  // },
   {
     name: "back",
     ButtonName: "Back", // Replace with actual icon import
-  },
+  }
 ];
 
 export const DownloadTab : TabType = {

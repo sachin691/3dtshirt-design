@@ -15,9 +15,9 @@ const CanvasModel = () => {
     >
       <ambientLight intensity={0.5} />
       <Environment preset="city" />
-
+      <Backdrop />
       <CameraRig>
-        <Center position={[0.38, 0.42, 0.1]}>
+        <Center position={[0.39, 0.42, 0.1]}>
           <Shirt />
         </Center>
       </CameraRig>

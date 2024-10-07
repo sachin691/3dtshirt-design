@@ -15,8 +15,8 @@ const CameraRig = ({ children }: Props) => {
   const snap = useSnapshot(state);
   const group = useRef() as React.MutableRefObject<Group>;
 
-   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
-   const isBreakpoint = useMediaQuery({ query: "(max-width: 1024px)" });
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  const isBreakpoint = useMediaQuery({ query: "(max-width: 1024px)" });
   const mouseX = useRef(0);
   const touchX = useRef(0);
   const [isRotating, setIsRotating] = useState(false); // State to track if rotation is active
@@ -68,7 +68,6 @@ const CameraRig = ({ children }: Props) => {
   // Function to stop rotation when the user releases the button or touch
   const handleStopRotation = () => {
     setIsRotating(false);
-    // Store the last rotation position when stopping
     setLastRotationY(group.current.rotation.y);
   };
 
@@ -107,6 +106,10 @@ const CameraRig = ({ children }: Props) => {
         ? (touchX.current - startPosition.current) / 100 // Calculate rotation based on touch movement
         : (mouseX.current - startPosition.current) / 100; // Calculate rotation based on mouse movement
       group.current.rotation.y = lastRotationY + rotationY; // Start from the last position
+    }
+
+    if (snap.preview) {
+      group.current.rotation.y += -0.01; // Adjust rotation speed as needed
     }
   });
 

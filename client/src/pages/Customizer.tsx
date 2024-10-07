@@ -3,13 +3,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useSnapshot } from "valtio";
 
 import state from "../store";
-
 import { downloadCanvasToImage, reader } from "../config/helpers";
 import { EditorTabs, FilterTabs, DecalTypes, DownloadTab } from "../config/constants";
-
 import { slideAnimation } from "../config/motion";
 
 import { Tab, ColorPicker, FilePicker, CustomButton } from "../components";
+
 interface StateType {
   intro: boolean;
   color: string;
@@ -20,8 +19,10 @@ interface StateType {
   isLeftShoulderLogo: boolean;
   logoDecal: string;
   fullDecal: string;
+  backDecal: string;
   mode: string;
 }
+
 type FilterTabNames = "logoShirt" | "stylishShirt" | "leftShoulder" | "rightShoulder" | "back";
 
 type BooleanStateKeys = {
@@ -31,6 +32,7 @@ type BooleanStateKeys = {
 type StringStateKeys = {
   [K in keyof StateType]: StateType[K] extends string ? K : never;
 }[keyof StateType];
+
 const Customizer = () => {
   const snap = useSnapshot(state);
   const [file, setFile] = useState<File>();
@@ -38,10 +40,11 @@ const Customizer = () => {
   const [activeFilterTab, setActiveFilterTab] = useState({
     logoShirt: true,
     stylishShirt: false,
-    leftShoulder: false, // New left shoulder tab
-    rightShoulder: false, // New right shoulder tab
-    back: false, // New back tab
+    leftShoulder: false,
+    rightShoulder: false,
+    back: false,
   });
+  const [isFilePickerVisible, setFilePickerVisible] = useState(false); // State for FilePicker visibility
 
   // Show tab content depending on the showing tab
   const generateTabContent = () => {
@@ -49,7 +52,14 @@ const Customizer = () => {
       case "colorpicker":
         return <ColorPicker />;
       case "filepicker":
-        return <FilePicker file={file} setFile={setFile} readFile={readFile} />;
+        return isFilePickerVisible ? (
+          <FilePicker
+            file={file}
+            setFile={setFile}
+            readFile={readFile}
+            onClose={() => setFilePickerVisible(false)} // Close FilePicker
+          />
+        ) : null;
       default:
         return null;
     }
@@ -79,7 +89,7 @@ const Customizer = () => {
         decalType = { stateProperty: "isRightShoulderLogo", filterTab: "rightShoulder", imageProperty: "logoDecal" };
         break;
       case "back":
-        decalType = { stateProperty: "isBackLogo", filterTab: "back", imageProperty: "logoDecal" };
+        decalType = { stateProperty: "isBackLogo", filterTab: "back", imageProperty: "backDecal" };
         break;
       default:
         return;
@@ -105,13 +115,10 @@ const Customizer = () => {
       case "leftShoulder":
         state.isLeftShoulderLogo = !activeFilterTab[tabName];
         break;
-
       case "rightShoulder":
         state.isRightShoulderLogo = !activeFilterTab[tabName];
         break;
-
       case "back":
-        console.log(activeFilterTab[tabName]);
         state.isBackLogo = !activeFilterTab[tabName];
         break;
       default:
@@ -126,11 +133,12 @@ const Customizer = () => {
     }));
   };
 
-  const readFile = (type: "logo" | "full") => {
+  const readFile = (type: "logo" | "full" | "back") => {
     if (!file) return;
     reader(file).then((result) => {
       handleDecals(type, result);
       setActiveEditorTab("");
+      setFilePickerVisible(false)
     });
   };
 
@@ -151,14 +159,18 @@ const Customizer = () => {
                   tab={tab}
                   handleClick={() => {
                     setActiveEditorTab(tab.name);
+                    if (tab.name === "filepicker") {
+                      setFilePickerVisible(true); // Show FilePicker when filepicker tab is clicked
+                    }
                   }}
                 />
               ))}
+              {generateTabContent()}
             </div>
           </motion.div>
 
           <motion.div
-            className="absolute z-10 bottom-5 px-4 py-2 rounded-2xl left-0 right-0 flex justify-center items-center gap-4 bg-white shadow-md w-[20rem] sm:w-auto md:max-w-max mx-auto overflow-x-auto shadow-md"
+            className="absolute z-10 bottom-5 px-4 py-2 rounded-2xl left-0 right-0 flex justify-center items-center gap-4 bg-white shadow-md w-[22rem] mx-auto overflow-x-auto shadow-md"
             {...slideAnimation("up")}
           >
             {FilterTabs.map((tab) => (
@@ -177,12 +189,21 @@ const Customizer = () => {
           </motion.div>
 
           <motion.div className="absolute top-5 right-5 z-10" {...slideAnimation("right")}>
-            <CustomButton
-              type="filled"
-              title="Back"
-              handleClick={() => (state.intro = true)}
-              customStyles="w-fit px-4 py-2.5 font-bold text-sm"
-            />
+            {snap.preview ? (
+              <CustomButton
+                type="filled"
+                title="Exit Preview"
+                handleClick={() => (state.preview = false)}
+                customStyles="w-fit px-4 py-2.5 font-bold text-sm"
+              />
+            ) : (
+              <CustomButton
+                type="filled"
+                title="Preview"
+                handleClick={() => (state.preview = true)}
+                customStyles="w-fit px-4 py-2.5 font-bold text-sm"
+              />
+            )}
           </motion.div>
         </>
       )}
