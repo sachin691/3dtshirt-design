@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { AccumulativeShadows, RandomizedLight } from "@react-three/drei";
 import { ReactThreeFiber } from "@react-three/fiber";
+import * as THREE from "three";
 
 type SoftShadowMaterialProps = {
   map: THREE.Texture;
