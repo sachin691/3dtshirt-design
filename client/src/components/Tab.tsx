@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useSnapshot } from "valtio";
 import { TabType } from "../config/constants";
 import state from "../store";
@@ -15,7 +15,6 @@ interface TabProps {
 
 const Tab = ({ tab, handleClick, isFilterTab, isActiveTab, isDownloadTab, ButtonName }: TabProps) => {
   const snap = useSnapshot(state);
-  const [file, setFile] = useState<File | undefined>(undefined);
   const [isFilePickerVisible, setFilePickerVisible] = useState(false); // State for visibility of FilePicker
 
   const activeStyles =
@@ -24,13 +23,9 @@ const Tab = ({ tab, handleClick, isFilterTab, isActiveTab, isDownloadTab, Button
       : { backgroundColor: "transparent", opacity: 1 };
 
   const toggleFilePicker = () => {
-     handleClick() 
-    setFilePickerVisible(true); // Open FilePicker
-  };
-
-  const closeFilePicker = () => {
-    setFilePickerVisible(false); // Close FilePicker
-    setFile(undefined); // Optionally reset file selection
+    handleClick() 
+    setFilePickerVisible(true);
+    console.log(isFilePickerVisible)
   };
 
   return (

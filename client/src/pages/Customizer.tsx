@@ -4,7 +4,7 @@ import { useSnapshot } from "valtio";
 
 import state from "../store";
 import { downloadCanvasToImage, reader } from "../config/helpers";
-import { EditorTabs, FilterTabs, DecalTypes, DownloadTab } from "../config/constants";
+import { EditorTabs, FilterTabs, DownloadTab } from "../config/constants";
 import { slideAnimation } from "../config/motion";
 
 import { Tab, ColorPicker, FilePicker, CustomButton } from "../components";

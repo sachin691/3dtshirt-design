@@ -59,7 +59,7 @@ const Shirt = () => {
       material-roughness={1}
       dispose={null}
       material-aoMapIntensity={1}
-      scale={isMobile ? 0.6 : 0.7}
+      scale={isMobile ? 0.76 : 0.9}
     >
       {snap.isFullTexture && (
         <Decal
